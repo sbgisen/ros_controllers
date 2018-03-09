@@ -46,6 +46,7 @@
 
 namespace diff_drive_controller
 {
+  int odomInitEnable = 1; 	//in order to reset first position
   namespace bacc = boost::accumulators;
 
   Odometry::Odometry(size_t velocity_rolling_window_size)
@@ -71,6 +72,7 @@ namespace diff_drive_controller
     // Reset accumulators and timestamp:
     resetAccumulators();
     timestamp_ = time;
+	odomInitEnable = 1;   //reset first position flag : on
   }
 
   bool Odometry::update(double left_pos, double right_pos, const ros::Time &time, double yaw)
@@ -79,11 +81,19 @@ namespace diff_drive_controller
     const double left_wheel_cur_pos  = left_pos  * wheel_radius_;
     const double right_wheel_cur_pos = right_pos * wheel_radius_;
 
-    /// Estimate velocity of wheels using old and current position:
+
+    //reset first position
+	if(odomInitEnable == 1){
+		left_wheel_old_pos_ = left_wheel_cur_pos;
+		right_wheel_old_pos_ = right_wheel_cur_pos;
+    	odomInitEnable = 0;
+	}
+
+
+	/// Estimate velocity of wheels using old and current position:
     const double left_wheel_est_vel  = left_wheel_cur_pos  - left_wheel_old_pos_;
     const double right_wheel_est_vel = right_wheel_cur_pos - right_wheel_old_pos_;
-
-    /// Update old position with current:
+    //Update old position with current:
     left_wheel_old_pos_  = left_wheel_cur_pos;
     right_wheel_old_pos_ = right_wheel_cur_pos;
 
