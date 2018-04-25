@@ -284,7 +284,10 @@ namespace diff_drive_controller{
       right_pos /= wheel_joints_size_;
 
       // Estimate linear and angular velocity using joint information
-      odometry_.update(left_pos, right_pos, time, yaw_imu_ / publish_rate_);
+      //odometry_.update(left_pos, right_pos, time, yaw_imu_ / publish_rate_);
+      //left_pos,right_pos: Wheel Position[rad]
+      //yaw_imu_:           Gyro Data[rad/sec]
+      odometry_.update(left_pos, right_pos, time, yaw_imu_);
     }
 
     // Publish odometry message
