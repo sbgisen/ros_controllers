@@ -90,17 +90,19 @@ namespace diff_drive_controller
     /// Compute linear and angular diff:
     const double linear  = (right_wheel_est_vel + left_wheel_est_vel) * 0.5 ;
     //const double angular = (right_wheel_est_vel - left_wheel_est_vel) / wheel_separation_;
+    //const double pi = boost::math::constants::pi<double>();
 
-    const double pi = boost::math::constants::pi<double>();
-    const double angular = yaw / 2.;
+    /// We cannot estimate the speed with very small time intervals:
+    const double dt = (time - timestamp_).toSec();
+    if (dt < 0.0001){
+      return false; // Interval too small to integrate with
+    }
+    //calculate angular difference from last time[rad/sec]*[sec] = [rad]
+    const double angular = yaw * dt;//yaw / 20.;
 
     /// Integrate odometry:
     integrate_fun_(linear, angular);
 
-    /// We cannot estimate the speed with very small time intervals:
-    const double dt = (time - timestamp_).toSec();
-    if (dt < 0.0001)
-      return false; // Interval too small to integrate with
 
     timestamp_ = time;
 
