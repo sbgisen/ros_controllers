@@ -146,6 +146,9 @@ namespace diff_drive_controller{
     /// Yaw from IMU
     double yaw_imu_;
 
+    /// Frame to use for odometry and odom tf:
+    std::string odom_frame_id_;
+
     /// Frame to use for the robot base:
     std::string base_frame_id_;
 
