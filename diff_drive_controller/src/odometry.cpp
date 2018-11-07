@@ -92,17 +92,14 @@ bool Odometry::update(double left_pos, double right_pos, const ros::Time &time, 
   /// Estimate velocity of wheels using old and current position:
   double left_wheel_est_vel  = left_wheel_cur_pos  - left_wheel_old_pos_;//[rad]
   double right_wheel_est_vel = right_wheel_cur_pos - right_wheel_old_pos_;//[rad]
-  while(left_wheel_est_vel > M_PI){
+  if(left_wheel_est_vel > M_PI){
 	  left_wheel_est_vel -= (2.0*M_PI);
-  }
-  while(left_wheel_est_vel < -M_PI){
+  }else if(left_wheel_est_vel < -M_PI){
 	  left_wheel_est_vel += (2.0*M_PI);
   }
-
-  while(right_wheel_est_vel > M_PI){
+  if(right_wheel_est_vel > M_PI){
 	  right_wheel_est_vel -= (2.0*M_PI);
-  }
-  while(right_wheel_est_vel < -M_PI){
+  }else if(right_wheel_est_vel < -M_PI){
 	  right_wheel_est_vel += (2.0*M_PI);
   }
 
