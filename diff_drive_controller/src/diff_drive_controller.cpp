@@ -46,10 +46,7 @@
 
 #include <boost/assign.hpp>
 
-#include <sensor_msgs/Imu.h>
-#include <geometry_msgs/Vector3Stamped.h>
-
-#include <diff_drive_controller/diff_drive_controller.h>
+#include "diff_drive_controller/diff_drive_controller.h"
 
 static double euclideanOfVectors(const urdf::Vector3& vec1, const urdf::Vector3& vec2)
 {

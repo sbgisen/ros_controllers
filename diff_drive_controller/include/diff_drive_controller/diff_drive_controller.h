@@ -41,6 +41,9 @@
 #include <pluginlib/class_list_macros.h>
 
 #include <nav_msgs/Odometry.h>
+#include <sensor_msgs/Imu.h>
+#include <geometry_msgs/Vector3Stamped.h>
+
 #include <tf/tfMessage.h>
 #include <tf/transform_listener.h>
 
