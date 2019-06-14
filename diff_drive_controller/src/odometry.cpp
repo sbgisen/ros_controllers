@@ -46,6 +46,7 @@
 namespace diff_drive_controller
 {
   namespace bacc = boost::accumulators;
+  int odomInitEnable = 1;   //in order to reset first position, 0:nothing 1:reset
 
   Odometry::Odometry(size_t velocity_rolling_window_size)
   : timestamp_(0.0)
@@ -71,17 +72,39 @@ namespace diff_drive_controller
     // Reset accumulators and timestamp:
     resetAccumulators();
     timestamp_ = time;
+    odomInitEnable = 1;
   }
 
   bool Odometry::update(double left_pos, double right_pos, const ros::Time &time)
   {
     /// Get current wheel joint positions:
-    const double left_wheel_cur_pos  = left_pos  * left_wheel_radius_;
-    const double right_wheel_cur_pos = right_pos * right_wheel_radius_;
+    double left_wheel_cur_pos  = left_pos;//[rad]
+    double right_wheel_cur_pos = right_pos;//[rad]
+
+   //reset first position 
+   if (odomInitEnable == 1) { 
+      left_wheel_old_pos_ = left_wheel_cur_pos; 
+      right_wheel_old_pos_ = right_wheel_cur_pos; 
+      odomInitEnable = 0; 
+    }
 
     /// Estimate velocity of wheels using old and current position:
-    const double left_wheel_est_vel  = left_wheel_cur_pos  - left_wheel_old_pos_;
-    const double right_wheel_est_vel = right_wheel_cur_pos - right_wheel_old_pos_;
+    double left_wheel_est_vel  = left_wheel_cur_pos  - left_wheel_old_pos_;
+    double right_wheel_est_vel = right_wheel_cur_pos - right_wheel_old_pos_;
+
+    // Convert wheel angule value difference from previous angle between -pi[rad] and pi[rad]
+    if (left_wheel_est_vel > M_PI) { 
+      left_wheel_est_vel -= (2.0 * M_PI); 
+    } else if (left_wheel_est_vel < -M_PI) { 
+      left_wheel_est_vel += (2.0 * M_PI); 
+    } 
+    if (right_wheel_est_vel > M_PI) { 
+      right_wheel_est_vel -= (2.0 * M_PI); 
+    } else if (right_wheel_est_vel < -M_PI) { 
+      right_wheel_est_vel += (2.0 * M_PI); 
+    }
+    left_wheel_est_vel  = left_wheel_radius_ * left_wheel_est_vel;//[m]
+    right_wheel_est_vel = right_wheel_radius_* right_wheel_est_vel;//[m]
 
     /// Update old position with current:
     left_wheel_old_pos_  = left_wheel_cur_pos;
