@@ -412,9 +412,26 @@ namespace diff_drive_controller{
       {
         geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
         odom_frame.header.stamp = time;
-        odom_frame.transform.translation.x = odometry_.getX();
-        odom_frame.transform.translation.y = odometry_.getY();
-        odom_frame.transform.rotation = orientation;
+		tf2::Quaternion orientation_tf2(orientation.x,orientation.y,orientation.z,orientation.w);
+		tf2::Matrix3x3 orientation_matrix(orientation_tf2);
+		tf2::Matrix3x3 orientation_matrix_inv;
+		orientation_matrix_inv = orientation_matrix.inverse();
+		tf2::Quaternion orientation_tf2_inv;
+		orientation_matrix_inv.getRotation(orientation_tf2_inv);
+		tf2::Vector3 translation_forward(odometry_.getX(), odometry_.getY(), 0);
+		tf2::Vector3 translation_backward;
+		translation_backward = orientation_matrix_inv * -translation_forward;
+        odom_frame.transform.translation.x = translation_backward.getX();
+        odom_frame.transform.translation.y = translation_backward.getY();
+        geometry_msgs::Quaternion orientation_inv;
+        orientation_inv.x = orientation_tf2_inv.getX();
+        orientation_inv.y = orientation_tf2_inv.getY();
+        orientation_inv.z = orientation_tf2_inv.getZ();
+        orientation_inv.w = orientation_tf2_inv.getW();
+        odom_frame.transform.rotation = orientation_inv;
+//        odom_frame.transform.translation.x = odometry_.getX();
+//        odom_frame.transform.translation.y = odometry_.getY();
+//        odom_frame.transform.rotation = orientation;
         tf_odom_pub_->unlockAndPublish();
       }
     }
@@ -680,8 +697,8 @@ namespace diff_drive_controller{
     tf_odom_pub_.reset(new realtime_tools::RealtimePublisher<tf::tfMessage>(root_nh, "/tf", 100));
     tf_odom_pub_->msg_.transforms.resize(1);
     tf_odom_pub_->msg_.transforms[0].transform.translation.z = 0.0;
-    tf_odom_pub_->msg_.transforms[0].child_frame_id = base_frame_id_;
-    tf_odom_pub_->msg_.transforms[0].header.frame_id = odom_frame_id_;
+    tf_odom_pub_->msg_.transforms[0].child_frame_id = odom_frame_id_;
+    tf_odom_pub_->msg_.transforms[0].header.frame_id = base_frame_id_;
   }
 
   void DiffDriveController::reconfCallback(DiffDriveControllerConfig& config, uint32_t /*level*/)

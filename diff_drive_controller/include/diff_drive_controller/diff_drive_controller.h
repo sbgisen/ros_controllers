@@ -51,6 +51,7 @@
 #include <diff_drive_controller/odometry.h>
 #include <diff_drive_controller/speed_limiter.h>
 #include <diff_drive_controller/DiffDriveControllerConfig.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 namespace diff_drive_controller{
 
